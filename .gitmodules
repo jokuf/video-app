@@ -1,0 +1,3 @@
+[submodule "VideoApp/lib/glfw"]
+	path = VideoApp/lib/glfw
+	url = https://github.com/glfw/glfw
