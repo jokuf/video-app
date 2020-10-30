@@ -10,10 +10,14 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_subdirectory(lib/glfw)
 
+find_package(OpenGL REQUIRED)
+
+
 # Add source to this project's executable.
 add_executable (VideoApp "src/main.cpp" "src/VideoApp.h" "src/VideoApp.cpp")
 
 
-target_link_libraries(VideoApp glfw)
-# TODO: Add tests and install targets if needed.
-
+target_link_libraries(VideoApp 
+	glfw 
+	${OPENGL_LIBRARY} # filled by "find_package(OpenGL REQUIRED)"
+)
