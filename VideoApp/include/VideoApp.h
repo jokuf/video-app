@@ -1,5 +1,10 @@
 #pragma once
 
+/**
+  * Be sure to include GLAD before GLFW. The include file for GLAD includes the requiredOpenGL headers behind the scenes (likeGL/gl.h) 
+  * so be sure to include GLAD beforeother header files that require OpenGL (like GLFW).
+  */
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 
