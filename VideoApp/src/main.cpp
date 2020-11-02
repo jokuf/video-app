@@ -2,8 +2,73 @@
 #include "VideoApp.h"
 
 
+
+unsigned int create_vertex_shader(float * vertices) {
+	int success;
+	char infoLog[512];
+
+	unsigned int vertexShader;
+	const char* vertexShaderSource = "#version 330 core\n"
+		"layout (location = 0) in vec3 aPos;\n"
+		"void main()\n"
+		"{\n"
+		" gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+		"}\0";
+
+	vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glCompileShader(vertexShader);
+
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+
+	if (!success) {
+		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+
+		return 0;
+	}
+
+	return vertexShader;
+}
+
+unsigned int create_fragment_shader() {
+	int success;
+	char infoLog[512];
+	unsigned int fragmentShader;
+
+	const char* fragmentShaderSource = "#version 330 core\n"
+		"out vec4 FragColor;\n"
+		"void main()\n"
+		"{\n"
+		" FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+		"}\0";
+
+	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glCompileShader(fragmentShader);
+
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+
+	if (!success) {
+		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+
+		printf("Error: Fragment shader compilation failed.\n");
+		printf("%s\n", infoLog);
+
+		return 0;
+	}
+
+
+	return fragmentShader;
+}
+
+
 int main(int argc, const char** argv)
 {
+	int success;
+	char infoLog[512];
+
 	GLFWwindow* window;
 
 	if (!glfwInit()) {
@@ -33,40 +98,75 @@ int main(int argc, const char** argv)
 
 		return -1;
 	}
-	
 
-	// Define the viewport dimensions
-	//glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-	unsigned char* data = new unsigned char[100 * 100 * 3];
+	unsigned int vertexShader;
+	float vertices[] = {
+		-0.5f, -0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		0.0f, 0.5f, 0.0f
+	};
 
-	for (int y = 0; y < 100; y++) {
-		for (int x = 0; x < 100; x++) {
-			data[y * 100 * 3 + x * 3	] = 0xff;
-			data[y * 100 * 3 + x * 3 + 1] = 0x00;
-			data[y * 100 * 3 + x * 3 + 2] = 0x00;
-		}
+	if (!(vertexShader = create_vertex_shader(vertices))){
+
+		printf("Error: Vertex shader compilation failed.\n");
+		glfwTerminate();
+
+		return 1;
 	}
 
-	for (int y = 25; y < 75; y++) {
-		for (int x = 25; x < 75; x++) {
-			data[y * 100 * 3 + x * 3	] = 0x00;
-			data[y * 100 * 3 + x * 3 + 1] = 0x00;
-			data[y * 100 * 3 + x * 3 + 2] = 0xff;
-		}
-	}
-	
+	// tell OpenGL the size of the rendering window so OpenGL knows how we want to display the data and coordinates with respect to the window.
+	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
 	glfwSetWindowCloseCallback(window, windows_close_callback);
 
+	
+	unsigned int fragmentShader = create_fragment_shader();
+
+	if (1 > fragmentShader) {
+		glfwTerminate();
+
+		return 1;
+	}
+	
+	unsigned int shaderProgram = glCreateProgram();
+
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+
+	if (!success) {
+		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+
+		printf("Error: Unable to link shader program.\n");
+		printf("%s\n", infoLog);
+		glfwTerminate();
+
+		return 1;
+	}
+
+	unsigned int VAO;
+	glGenVertexArrays(1, &VAO);
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VAO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
 	while (!glfwWindowShouldClose(window)) {
+		glfwSwapBuffers(window);
+		glUseProgram(shaderProgram);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		
 		// Check if any events have been activated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glDrawPixels(100, 100, GL_RGB, GL_UNSIGNED_BYTE, data);
-	
-		glfwSwapBuffers(window);
 	}
+
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
 
 	glfwTerminate();
 
