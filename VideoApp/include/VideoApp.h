@@ -22,5 +22,7 @@
 
 void error_callback(int error, const char* description);
 void windows_close_callback(GLFWwindow* window);
-
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+unsigned int create_vertex_shader(float* vertices);
+unsigned int create_fragment_shader();
 #endif // !VIDEO_APP_H

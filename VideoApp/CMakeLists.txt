@@ -18,7 +18,7 @@ find_package(OpenGL REQUIRED)
 
 
 # Add source to this project's executable.
-add_executable (VideoApp "src/main.cpp" "include/VideoApp.h" "src/VideoApp.cpp" "src/glad.c")
+add_executable (VideoApp "src/hello_rectangle.cpp" "include/VideoApp.h" "src/VideoApp.cpp" "src/glad.c" "src/hello_rectangle.cpp")
 
 
 target_link_libraries(VideoApp 
