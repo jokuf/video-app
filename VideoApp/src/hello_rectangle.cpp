@@ -18,19 +18,6 @@ int main(int argc, char** argv)
 	printf("Hello world\n");
 
 
-	float vertices[] = {
-		0.5f, 0.5f, 0.0f,// top right
-		0.5f, -0.5f, 0.0f, // bottom right
-		-0.5f, -0.5f, 0.0f, // bottom left
-		-0.5f, 0.5f, 0.0f, // top left
-	};
-
-	unsigned int indices[] = {
-		0,1,3,
-		1,2,3
-	};
-
-
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -57,27 +44,8 @@ int main(int argc, char** argv)
 	
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	unsigned int VAO;
-	unsigned int VBO;
-	unsigned int EBO;
-
-	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-	glGenVertexArrays(1, &VAO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
 	int success;
-	unsigned int vertexShader = create_vertex_shader(vertices);
+	unsigned int vertexShader = create_vertex_shader();
 	if (!vertexShader) {
 
 		printf("Error: Vertex shader compilation failed.\n");
@@ -115,21 +83,59 @@ int main(int argc, char** argv)
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	float roofVertices[] = { 
+		0.3f, 0.7f, 0.0f, 
+		0.0f, 0.4f, 0.0f,
+		0.5f, 0.4f, 0.0f
+	};
+
+	float roof_vertices2[] = {
+		0.8f, 0.7f, 0.0f,
+		0.3f, 0.7f, 0.0f,
+		0.5f, 0.4f, 0.0f,
+		1.0f, 0.4f, 0.0f
+	};
+	
+	int roof_indices[] = {
+		0,3,2,
+		3,1,0
+	};
+
+	float house_vertices[] = {
+		0.4f, 0.4f, 0.0f, // 0 -> top right
+		0.1f, 0.4f, 0.0f, // 1 -> top left
+		0.1f, 0.1f, 0.0f, // 2 -> bottom left
+		0.4f, 0.1f, 0.0f, // 3 -> bottom right
+		0.9f, 0.4f, 0.0f, // 4 -> right right top
+		0.9f, 0.1f, 0.0f, // 5 -> right right down
+	};
+
+	int house_indices[] = {
+		5, 3, 4,
+		4, 0, 3,
+		3, 2, 0,
+		0, 1, 2
+	};
+
+	Fig roofFront(roofVertices, (int*)0, 9, 0);
+	Fig roofSecond(roof_vertices2, roof_indices, sizeof(roof_vertices2) / sizeof(float), sizeof(roof_indices) / sizeof(int));
+	Fig house(house_vertices, house_indices, 18, 12);
+	
+	house.Init();
+	roofSecond.Init();
+	roofFront.Init();
+
 	while (!glfwWindowShouldClose(window)) {
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
-
-		glUseProgram(shaderProgram);
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-
+		
+		roofFront.Render(shaderProgram);
+		roofSecond.Render(shaderProgram);
+		house.Render(shaderProgram);
 	}
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
-
 	glfwTerminate();
 
 	return 0;

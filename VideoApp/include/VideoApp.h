@@ -23,6 +23,28 @@
 void error_callback(int error, const char* description);
 void windows_close_callback(GLFWwindow* window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-unsigned int create_vertex_shader(float* vertices);
+unsigned int create_vertex_shader();
 unsigned int create_fragment_shader();
+
+
+class Fig
+{
+	float *vertices;
+	int *indices;
+	int verticesCount;
+	int indicesCount;
+	unsigned int VBO;
+	unsigned int VAO;
+	unsigned int EBO;
+
+public:
+	Fig(float * vertices, int * indeces, int verticesCount, int indecesCount);
+	void Init();
+	void Render(int shaderProgram);
+	void Destroy();
+};
+
+
+
+
 #endif // !VIDEO_APP_H
