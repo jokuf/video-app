@@ -30,12 +30,6 @@ target_link_libraries(VideoApp
 	${OPENGL_LIBRARY} # filled by "find_package(OpenGL REQUIRED)"
 )
 
-message(STATUS $<TARGET_FILE_DIR:VideoApp>)
-
-add_custom_command(TARGET VideoApp PRE_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/src/shaders/ $<TARGET_FILE_DIR:VideoApp>/shaders)
-
 
 file (GLOB_RECURSE resources "src/shaders/*.*")
 foreach(resource ${resources})
