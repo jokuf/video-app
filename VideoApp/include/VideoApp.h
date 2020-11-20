@@ -23,9 +23,6 @@
 void error_callback(int error, const char* description);
 void windows_close_callback(GLFWwindow* window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-unsigned int create_vertex_shader();
-unsigned int create_fragment_shader();
-
 
 class Fig
 {
@@ -40,7 +37,7 @@ class Fig
 public:
 	Fig(float * vertices, int * indeces, int verticesCount, int indecesCount);
 	void Init();
-	void Render(int shaderProgram);
+	void Render();
 	void Destroy();
 };
 

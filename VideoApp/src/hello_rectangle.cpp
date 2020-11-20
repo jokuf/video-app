@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "VideoApp.h"
+#include "Shader.h"
 
 #if defined(_MSC_VER)
 #include <direct.h>
@@ -44,44 +45,9 @@ int main(int argc, char** argv)
 	
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	int success;
-	unsigned int vertexShader = create_vertex_shader();
-	if (!vertexShader) {
+	Shader shaderProgram("./shaders/vertex/default.vs", "./shaders/fragment/default.fs");
 
-		printf("Error: Vertex shader compilation failed.\n");
-		glfwTerminate();
-
-		return 1;
-	}
-	unsigned int fragmentShader = create_fragment_shader();
-
-	if (1 > fragmentShader) {
-		glfwTerminate();
-		glDeleteShader(vertexShader);
-
-		return 1;
-	}
-	
-
-	unsigned int shaderProgram;
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
-
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-
-	if (!success) {
-		printf("Unable to link shader program\n");
-		glDeleteShader(vertexShader);
-		glDeleteShader(fragmentShader);
-
-		glfwTerminate();
-		
-		return -1;
-	}
-
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	shaderProgram.use();
 
 	float roofVertices[] = { 
 		0.3f, 0.7f, 0.0f, 
@@ -125,17 +91,18 @@ int main(int argc, char** argv)
 	roofSecond.Init();
 	roofFront.Init();
 
+	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 	while (!glfwWindowShouldClose(window)) {
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		
-		roofFront.Render(shaderProgram);
-		roofSecond.Render(shaderProgram);
-		house.Render(shaderProgram);
+		roofFront.Render();
+		roofSecond.Render();
+		house.Render();
 	}
 
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+
 	glfwTerminate();
 
 	return 0;
