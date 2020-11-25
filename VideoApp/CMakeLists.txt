@@ -24,38 +24,13 @@ find_package(OpenGL REQUIRED)
 add_executable (VideoApp "src/hello_rectangle.cpp" "include/Shader.h" "include/VideoApp.h" "src/VideoApp.cpp" "src/glad.c" "src/hello_rectangle.cpp" "include/Shader.h" )
 
 
-
 target_link_libraries(VideoApp 
 	glfw 
 	${OPENGL_LIBRARY} # filled by "find_package(OpenGL REQUIRED)"
 )
 
 
-file (GLOB_RECURSE resources "src/shaders/*.*")
-foreach(resource ${resources})
- get_filename_component(filename ${resource} NAME)
- get_filename_component(dir ${resource} DIRECTORY)
- get_filename_component(dirname ${dir} NAME)
- 
- set (output "")
- 
- while(NOT ${dirname} STREQUAL shaders)
-  get_filename_component(path_component ${dir} NAME)
-  set (output "${path_component}/${output}")
-  get_filename_component(dir ${dir} DIRECTORY)
-  get_filename_component(dirname ${dir} NAME)
- endwhile()
- 
- set(output "${CMAKE_CURRENT_BINARY_DIR}/shaders/${output}/${filename}")
- 
- add_custom_command(
-  COMMENT "Moving updated resource-file '${filename}'"
-  OUTPUT ${output}
-  DEPENDS ${resource}
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-  ${resource}
-  ${output}
- )
- add_custom_target(${filename} ALL DEPENDS ${resource} ${output})
- 
-endforeach()
+add_custom_command(TARGET VideoApp POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/resources"
+        $<TARGET_FILE_DIR:VideoApp>"/resources")

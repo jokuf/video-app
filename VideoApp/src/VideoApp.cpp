@@ -20,12 +20,14 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-Fig::Fig(float * _vertices, int * _indices, int verticesCount, int indicesCount)
+Fig::Fig(Shader& shader, float * _vertices, int * _indices, int verticesCount, int indicesCount)
 {
 	vertices = _vertices;
 	indices = _indices;
 	Fig::verticesCount = verticesCount;
 	Fig::indicesCount = indicesCount;
+	Fig::shader = shader;
+
 	printf("[CONSTRUCTOR] Vertices count: %d, Indices count:%d\n", verticesCount, indicesCount);
 	VAO = 0;
 	VBO = 0;
@@ -57,6 +59,7 @@ void Fig::Init()
 
 void Fig::Render() 
 {
+	shader.use();
 	glBindVertexArray(VAO);
 	if (indicesCount > 0) {
 		glDrawElements(GL_TRIANGLES, indicesCount, GL_UNSIGNED_INT, 0);

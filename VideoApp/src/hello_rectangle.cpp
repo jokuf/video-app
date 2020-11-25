@@ -45,63 +45,42 @@ int main(int argc, char** argv)
 	
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	Shader shaderProgram("./shaders/vertex/default.vs", "./shaders/fragment/default.fs");
+	Shader shaderProgram("./resources/shaders/vertex/default.vs", "./resources/shaders/fragment/default.fs");
 
-	shaderProgram.use();
 
-	float roofVertices[] = { 
-		0.3f, 0.7f, 0.0f, 
-		0.0f, 0.4f, 0.0f,
-		0.5f, 0.4f, 0.0f
+	float vertices[] = {
+		-0.5f, 0.6f, 0.0f,
+		-0.7f, 0.3f, 0.0f,
+		-0.3f, 0.3f, 0.0f
 	};
 
-	float roof_vertices2[] = {
-		0.8f, 0.7f, 0.0f,
-		0.3f, 0.7f, 0.0f,
-		0.5f, 0.4f, 0.0f,
-		1.0f, 0.4f, 0.0f
-	};
-	
-	int roof_indices[] = {
-		0,3,2,
-		3,1,0
-	};
+	Fig triangle(shaderProgram, vertices, (int*)0, sizeof(vertices) / sizeof(float), 0);
 
-	float house_vertices[] = {
-		0.4f, 0.4f, 0.0f, // 0 -> top right
-		0.1f, 0.4f, 0.0f, // 1 -> top left
-		0.1f, 0.1f, 0.0f, // 2 -> bottom left
-		0.4f, 0.1f, 0.0f, // 3 -> bottom right
-		0.9f, 0.4f, 0.0f, // 4 -> right right top
-		0.9f, 0.1f, 0.0f, // 5 -> right right down
-	};
-
-	int house_indices[] = {
-		5, 3, 4,
-		4, 0, 3,
-		3, 2, 0,
-		0, 1, 2
-	};
-
-	Fig roofFront(roofVertices, (int*)0, 9, 0);
-	Fig roofSecond(roof_vertices2, roof_indices, sizeof(roof_vertices2) / sizeof(float), sizeof(roof_indices) / sizeof(int));
-	Fig house(house_vertices, house_indices, 18, 12);
-	
-	house.Init();
-	roofSecond.Init();
-	roofFront.Init();
+	triangle.Init();
 
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	shaderProgram.use();
+	float xOffset = 0;
+	double nextTime = glfwGetTime() + 1;
+	
 	while (!glfwWindowShouldClose(window)) {
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-		
-		roofFront.Render();
-		roofSecond.Render();
-		house.Render();
-	}
 
+		if (glfwGetTime() >= nextTime) {
+			nextTime += 1;
+			xOffset += 0.1f;
+			
+			shaderProgram.setFloat("xOffset", xOffset);
+		}
+		else {
+			//shaderProgram.setFloat("xOffset", 0);
+		}
+
+		glClear(GL_COLOR_BUFFER_BIT);
+		triangle.Render();
+	}
 
 	glfwTerminate();
 

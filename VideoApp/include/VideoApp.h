@@ -6,7 +6,7 @@
   */
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
+#include "Shader.h"
 
 #ifndef VIDEOAPP_H
 #define VIDEOAPP_H
@@ -33,9 +33,9 @@ class Fig
 	unsigned int VBO;
 	unsigned int VAO;
 	unsigned int EBO;
-
+	Shader shader;
 public:
-	Fig(float * vertices, int * indeces, int verticesCount, int indecesCount);
+	Fig(Shader& shader, float* _vertices, int* _indices, int verticesCount, int indicesCount);
 	void Init();
 	void Render();
 	void Destroy();
